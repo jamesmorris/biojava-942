@@ -97,12 +97,8 @@ public class GenericGenbankHeaderParser<S extends AbstractSequence<C>, C extends
 	 * complete lineage will be available in the Taxonomy Database. (See also the
 	 * /db_xref=taxon:nnnn Feature qualifer, below.)
 	 */
-	private List<String> organism = new ArrayList<>();
-	
-	/**
-	 * GI sequence identifier
-	 */
-	private String gi = null;
+	private String organism = null;
+	private List<String> lineage = new ArrayList<>();
 
 	/**
 	 * Parse the header and set the values in the sequence
@@ -116,6 +112,10 @@ public class GenericGenbankHeaderParser<S extends AbstractSequence<C>, C extends
 		sequence.setDescription(description);
 		sequence.setComments(comments);
 		sequence.setReferences(references);
+		sequence.setKeywords(keywords);
+		sequence.setSource(source);
+		sequence.setOrganism(organism);
+		sequence.setLineage(lineage);
 	}
 
 	public String getAccession() {
@@ -144,6 +144,22 @@ public class GenericGenbankHeaderParser<S extends AbstractSequence<C>, C extends
 
 	public String getDescription() {
 		return description;
+	}
+	
+	public List<String> getKeywords() {
+		return keywords;
+	}
+
+	public String getSource() {
+		return source;
+	}
+	
+	public List<String> getLineage() {
+		return lineage;
+	}
+
+	public String getOrganism() {
+		return organism;
 	}
 
 	/**
@@ -220,8 +236,31 @@ public class GenericGenbankHeaderParser<S extends AbstractSequence<C>, C extends
 		if (comment==null) throw new ParserException("Comment cannot be null");
 		this.comments.add(comment);
 	}
+	
+	public void setKeywords(List<String> keywords) {
+		this.keywords = keywords;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+	
+	public void setOrganism(String organism) {
+		this.organism = organism;
+		
+	}
+	
+	public void setLineage(List<String> lineage) {
+		this.lineage = lineage;
+	}
 
 	public void addReference(AbstractReference abstractReference){
 		this.references.add(abstractReference);
 	}
+
+	public void addLineage(List<String> lineage) {
+		this.lineage = lineage;
+		
+	}
+
 }
