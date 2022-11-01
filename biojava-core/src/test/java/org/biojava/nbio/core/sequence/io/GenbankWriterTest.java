@@ -33,6 +33,8 @@ import org.biojava.nbio.core.sequence.features.Qualifier;
 import org.biojava.nbio.core.sequence.features.TextFeature;
 import org.biojava.nbio.core.sequence.location.SimpleLocation;
 import org.biojava.nbio.core.sequence.location.template.Location;
+import org.biojava.nbio.core.sequence.reference.AbstractReference;
+import org.biojava.nbio.core.sequence.reference.GenbankReference;
 import org.biojava.nbio.core.sequence.template.AbstractSequence;
 import org.biojava.nbio.core.sequence.Strand;
 import org.biojava.nbio.core.sequence.compound.NucleotideCompound;
@@ -115,7 +117,7 @@ public class GenbankWriterTest {
 				Arrays.asList(seq), 
 				GenbankWriterHelper.LINEAR_DNA);
 		fragwriter.close();
-		//System.out.println(fragwriter.toString().replaceAll("\r\n", "\n"));
+		System.out.println(fragwriter.toString().replaceAll("\r\n", "\n"));
 		
 		// now read in the file that was created and check that the qualifiers were created correctly
 		InputStream readerInputStream = new ByteArrayInputStream(fragwriter.toByteArray());
@@ -217,7 +219,7 @@ public class GenbankWriterTest {
 				Arrays.asList(sequence));
 		fragwriter.close();
 		
-		//System.out.println(fragwriter.toString().replaceAll("\r\n", "\n"));
+		System.out.println(fragwriter.toString().replaceAll("\r\n", "\n"));
 		
 		// Read the output file and test that no information is lost
 		InputStream readerInputStream = new ByteArrayInputStream(fragwriter.toByteArray());
@@ -262,34 +264,99 @@ public class GenbankWriterTest {
 		// Important information is lost when reading and writing a
 		// GenBank file through GenbankReaderHelper & GenbankWriterHelper
 
-		// First read the sample GenBank file from
-		// https://www.ncbi.nlm.nih.gov/Sitemap/samplerecord.html using the
-		// GenbankReaderHelper
+		// First read a sample GenBank file
 		InputStream inStream = GenbankWriterTest.class.getResourceAsStream("/NM_000266.gb");
 		DNASequence sequence = GenbankReaderHelper.readGenbankDNASequence(inStream).values().iterator().next();
 
-		// Then write sequence back to a file using the GenbankWriterHelper
+		// Then write the Sequence object out using the GenbankWriterHelper
 		ByteArrayOutputStream fragwriter = new ByteArrayOutputStream();
 		GenbankWriterHelper.writeNucleotideSequenceOriginal(
 				fragwriter, 
 				Arrays.asList(sequence));
 		fragwriter.close();
 		
-		// Test no important information is lost
+		// Test for any loss in important information
 		InputStream readerInputStream = new ByteArrayInputStream(fragwriter.toByteArray());
 		DNASequence newSequence = GenbankReaderHelper.readGenbankDNASequence(readerInputStream).values().iterator().next();
 		
-		//System.out.println(fragwriter.toString().replaceAll("\r\n", "\n"));
+		System.out.println("testGithub942:" + fragwriter.toString().replaceAll("\r\n", "\n"));
 
 		assertEquals("getOriginalHeader()", sequence.getOriginalHeader(), newSequence.getOriginalHeader());
+		// get the individual parts of the locus line
+		// ID
+		// length - is the current length based on locus or sequence?
+		// units
+		// sequence type dna,rna etc
+		// linear/circular
+		// division
+		// date
+		
+		
 		assertEquals("getLength()", sequence.getLength(), newSequence.getLength());
 		assertEquals("getAccession().getID()", sequence.getAccession().getID(), newSequence.getAccession().getID());
 		assertEquals("getAccession().getVersion()", sequence.getAccession().getVersion(), newSequence.getAccession().getVersion());
 		assertEquals("getDescription()", sequence.getDescription(), newSequence.getDescription());
-		//assertEquals("getSource()", sequence.getSource(), newSequence.getSource());
-		//assertEquals("getDNAType()", sequence.getDNAType(), newSequence.getDNAType());
-		//assertEquals("getTaxonomy()", sequence.getTaxonomy(), newSequence.getTaxonomy());		
-		//assertEquals("getReferences()", sequence.getReferences(), newSequence.getReferences());
+		assertEquals("getKeywords()", sequence.getKeywords(), newSequence.getKeywords());
+		assertEquals("getSource()", sequence.getSource(), newSequence.getSource());
+		assertEquals("getOrganism()", sequence.getOrganism(), newSequence.getOrganism());
+		assertEquals("getLineage()", sequence.getLineage(), newSequence.getLineage());
+		
+		// References 
+		List<AbstractReference> originalReferences = sequence.getReferences();
+		List<AbstractReference> newReferences = newSequence.getReferences();
+		
+		for (int i=0; i < originalReferences.size(); i++ ) {
+			GenbankReference originalReference = (GenbankReference) originalReferences.get(i);
+			GenbankReference newReference = (GenbankReference) newReferences.get(i);
+			
+			String originalReferenceNumber = originalReference.getNumber();
+			String originalReferenceBases = originalReference.getBases();
+			String originalReferenceTitle = originalReference.getTitle();
+			String originalReferenceAuthors = originalReference.getAuthors();
+			String originalReferenceConsortium = originalReference.getConsortium();
+			String originalReferenceJournal = originalReference.getJournal();
+			String originalReferencePeubmed = originalReference.getPubmedId();
+			String originalReferenceMedline = originalReference.getMedlineId();
+			String originalReferenceRemark = originalReference.getRemark();
+			
+			if (originalReferenceNumber != null) {
+				assertEquals("Reference getNumber", originalReference.getNumber(), newReference.getNumber());
+			}
+
+			if (originalReferenceBases != null) {
+				assertEquals("Reference getBases", originalReference.getBases(), newReference.getBases());
+			}
+
+			if (originalReferenceTitle != null) {
+				assertEquals("Reference getTitle", originalReference.getTitle().replaceAll("[\\n\\r]+", " "), newReference.getTitle().replaceAll("[\\n\\r]+", " "));
+			}
+
+			if (originalReferenceAuthors != null) {
+				assertEquals("Reference getAuthors", originalReference.getAuthors().replaceAll("[\\n\\r]+", " "), newReference.getAuthors().replaceAll("[\\n\\r]+", " "));
+			}
+
+			if (originalReferenceConsortium != null) {
+				assertEquals("Reference getConsortium", originalReference.getConsortium().replaceAll("[\\n\\r]+", " "), newReference.getConsortium().replaceAll("[\\n\\r]+", " "));
+			}
+
+			if (originalReferenceJournal != null) {
+				assertEquals("Reference getJournal",    originalReference.getJournal().replaceAll("[\\n\\r]+", " "), newReference.getJournal().replaceAll("[\\n\\r]+", " "));
+			}
+
+			if (originalReferencePeubmed != null) {
+				assertEquals("Reference getPubmedId",   originalReference.getPubmedId(), newReference.getPubmedId());
+			}
+
+			if (originalReferenceMedline != null) {
+				assertEquals("Reference getMedlineId",  originalReference.getMedlineId(), newReference.getMedlineId());
+			}
+
+			if (originalReferenceRemark != null) {
+				assertEquals("Reference getRemark",     originalReference.getRemark().replaceAll("[\\n\\r]+", " "), newReference.getRemark().replaceAll("[\\n\\r]+", " "));
+			}
+						
+		}
+		
 		//assertEquals("getComments()", sequence.getComments(), newSequence.getComments());
 		//assertEquals("getNotesList()", sequence.getNotesList(), newSequence.getNotesList());
 		
