@@ -59,12 +59,15 @@ public abstract class AbstractSequence<C extends Compound> implements Sequence<C
 	private CompoundSet<C> compoundSet;
 	private AnnotationType annotationType = AnnotationType.UNKNOWN;
 	private String description;
+	private List<String> keywords;
 	private String originalHeader;
 	private Collection<Object> userCollection;
 	private Integer bioBegin = null;
 	private Integer bioEnd = null;
 	private AbstractSequence<?> parentSequence = null;
 	private String source = null;
+	private String organism = null;
+	private List<String> lineage = new ArrayList<>();
 	private ArrayList<String> notesList = new ArrayList<String>();
 	private Double sequenceScore = null;
 	private FeaturesKeyWordInterface featuresKeyWord = null;
@@ -235,6 +238,20 @@ public abstract class AbstractSequence<C extends Compound> implements Sequence<C
 	public void setDescription(String description) {
 		this.description = description;
 	}
+	
+	/**
+	 * @param keywords - Word or phrase describing the sequence
+	 */
+	public List<String> getKeywords() {
+		return keywords;
+	}
+
+	/**
+	 * @param keywords - Word or phrase describing the sequence
+	 */
+	public void setKeywords(List<String> keywords) {
+		this.keywords = keywords;
+	}
 
 	/**
 	 * @return the originalHeader
@@ -288,6 +305,28 @@ public abstract class AbstractSequence<C extends Compound> implements Sequence<C
 		this.source = source;
 	}
 
+	public void setLineage(List<String> lineage) {
+		
+		this.lineage = lineage;
+		
+	}
+
+	public void setOrganism(String organism) {
+		
+		this.organism = organism;
+		
+	}
+
+	public String getOrganism() {
+		
+		return organism;
+	}
+
+	public List<String> getLineage() {
+		
+		return lineage;
+	}
+	
 	/**
 	 * Add notes about this sequence that will get exported for GFF3
 	 * @param note
