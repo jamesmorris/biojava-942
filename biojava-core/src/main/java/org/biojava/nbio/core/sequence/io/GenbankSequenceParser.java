@@ -181,11 +181,8 @@ public class GenbankSequenceParser<S extends AbstractSequence<C>, C extends Comp
 	}
 
 	private void parseSourceTag(List<String[]> section) {
-		
 		// first line - source
-		System.out.println("section.get(0)[1]: " + section.get(0)[1]);
 		headerParser.setSource(section.get(0)[1]);
-		
 		// get the organism/lineage
 		if (section.size() > 1) {
 			Matcher m = orgainsmPattern.matcher(section.get(1)[1]);
