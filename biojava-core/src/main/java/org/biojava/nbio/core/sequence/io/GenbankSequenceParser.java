@@ -154,7 +154,7 @@ public class GenbankSequenceParser<S extends AbstractSequence<C>, C extends Comp
 					throw new ParserException(Messages.ENDOFFILE);
 				}
 				throw new ParserException(Messages.SECTIONKEYNULL);
-			}			
+			}
 			// process section-by-section
 			switch (sectionKey) {
 				case LOCUS_TAG: parseLocusTag(section); break;
@@ -281,7 +281,7 @@ public class GenbankSequenceParser<S extends AbstractSequence<C>, C extends Comp
 		headerParser.setComment(section.get(0)[1]);
 	}
 
-	private void parseReferenceTag(List<String[]> section) {		
+	private void parseReferenceTag(List<String[]> section) {
 		GenbankReference genbankReference = new GenbankReference();
 		for (String[] ref : section) {
 			
@@ -345,7 +345,7 @@ public class GenbankSequenceParser<S extends AbstractSequence<C>, C extends Comp
 	}
 
 	private void parseLocusTag(List<String[]> section) {
-		String loc = section.get(0)[1];		
+		String loc = section.get(0)[1];
 		header = loc;
 		Matcher m = lp.matcher(loc);
 		Matcher m2 = lp2.matcher(loc);		
