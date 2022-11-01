@@ -97,18 +97,18 @@ public class GenbankSequenceParser<S extends AbstractSequence<C>, C extends Comp
 	protected static final String TITLE_TAG = "TITLE";
 	protected static final String JOURNAL_TAG = "JOURNAL";
 	protected static final String PUBMED_TAG = "PUBMED";
-	protected static final String MEDLINE_TAG = "MEDLINE"; // deprecated
+	protected static final String MEDLINE_TAG = "MEDLINE"; //deprecated
 	protected static final String REMARK_TAG = "REMARK";
 	protected static final String COMMENT_TAG = "COMMENT";
 	protected static final String FEATURE_TAG = "FEATURES";
-	protected static final String BASE_COUNT_TAG_FULL = "BASE COUNT"; // deprecated
+	protected static final String BASE_COUNT_TAG_FULL = "BASE COUNT"; //deprecated
 	protected static final String BASE_COUNT_TAG = "BASE";
 	//                                                  "CONTIG"
 	protected static final String START_SEQUENCE_TAG = "ORIGIN";
 	protected static final String DBSOURCE = "DBSOURCE";
 	protected static final String PRIMARY = "PRIMARY";
 	protected static final String DBLINK = "DBLINK";
-	protected static final String END_SEQUENCE_TAG    = "//";
+	protected static final String END_SEQUENCE_TAG = "//";
 	// locus line with name that may contain spaces but must start and end with non whitespace character
 	protected static final Pattern lp = Pattern.compile("^(\\S+[\\S ]*\\S*)\\s+(\\d+)\\s+(bp|BP|aa|AA)\\s*(([dmsDMS][sS]-)?(\\S+))?\\s*(circular|CIRCULAR|linear|LINEAR)?\\s*(\\S+)?\\s*(\\S+)?$");
 	// locus line with no name
@@ -154,8 +154,7 @@ public class GenbankSequenceParser<S extends AbstractSequence<C>, C extends Comp
 					throw new ParserException(Messages.ENDOFFILE);
 				}
 				throw new ParserException(Messages.SECTIONKEYNULL);
-			}
-			
+			}			
 			// process section-by-section
 			switch (sectionKey) {
 				case LOCUS_TAG: parseLocusTag(section); break;
@@ -282,8 +281,7 @@ public class GenbankSequenceParser<S extends AbstractSequence<C>, C extends Comp
 		headerParser.setComment(section.get(0)[1]);
 	}
 
-	private void parseReferenceTag(List<String[]> section) {
-		
+	private void parseReferenceTag(List<String[]> section) {		
 		GenbankReference genbankReference = new GenbankReference();
 		for (String[] ref : section) {
 			
@@ -347,8 +345,7 @@ public class GenbankSequenceParser<S extends AbstractSequence<C>, C extends Comp
 	}
 
 	private void parseLocusTag(List<String[]> section) {
-		String loc = section.get(0)[1];
-		
+		String loc = section.get(0)[1];		
 		header = loc;
 		Matcher m = lp.matcher(loc);
 		Matcher m2 = lp2.matcher(loc);		
@@ -522,7 +519,7 @@ public class GenbankSequenceParser<S extends AbstractSequence<C>, C extends Comp
 	public List<String> getKeyWords() {
 		return new ArrayList<>(featureCollection.keySet());
 	}
-	
+
 	public List<AbstractFeature<AbstractSequence<C>, C>> getFeatures(String keyword) {
 		return featureCollection.get(keyword);
 	}
