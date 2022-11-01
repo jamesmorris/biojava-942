@@ -27,12 +27,81 @@ package org.biojava.nbio.core.sequence.reference;
  * @Author Jim Tang
  */
 public class GenbankReference extends AbstractReference {
+	
+	// The number of the reference in the listing of references
+    private String number;
+    
+    // The bases in the sequence the reference refers to
+    private String bases;
+    
+    // String with all of the authors
+    private String authors;
+    
+    // Consortium the authors belong to
+    private String consortium;
+    
+    // The title of the reference
+    private String title;
+    
+    // Information about the journal where the reference appeared
+    private String journal;
+    
+    // The medline id for the reference
+    private String medlineId;
+    
+    // The pubmed_id for the reference
+    private String pubmedId; 
+    
+    // Free-form remarks about the reference
+    private String remark;
+    
+    public String getNumber() {
+		return number;
+	}
 
-	private String authors;
+	public void setNumber(String string) {
+		this.number = string;
+	}
 
-	private String title;
+	public String getBases() {
+		return bases;
+	}
 
-	private String journal;
+	public void setBases(String bases) {
+		this.bases = bases;
+	}
+
+	public String getConsortium() {
+		return consortium;
+	}
+
+	public void setConsortium(String consortium) {
+		this.consortium = consortium;
+	}
+
+	public String getMedlineId() {
+		return medlineId;
+	}
+
+	public void setMedlineId(String medlineId) {
+		this.medlineId = medlineId;
+	}
+
+	public String getPubmedId() {
+		return pubmedId;
+	}
+
+	public void setPubmedId(String pubmedId) {
+		this.pubmedId = pubmedId;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
 
 	@Override
 	public String getAuthors() {
