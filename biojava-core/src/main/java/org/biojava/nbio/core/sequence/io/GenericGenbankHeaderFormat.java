@@ -26,6 +26,8 @@ import org.biojava.nbio.core.sequence.compound.DNACompoundSet;
 import org.biojava.nbio.core.sequence.compound.RNACompoundSet;
 import org.biojava.nbio.core.sequence.features.FeatureInterface;
 import org.biojava.nbio.core.sequence.io.template.GenbankHeaderFormatInterface;
+import org.biojava.nbio.core.sequence.reference.AbstractReference;
+import org.biojava.nbio.core.sequence.reference.GenbankReference;
 import org.biojava.nbio.core.sequence.template.AbstractSequence;
 import org.biojava.nbio.core.sequence.template.Compound;
 import org.biojava.nbio.core.util.StringManipulationHelper;
@@ -254,7 +256,7 @@ public class GenericGenbankHeaderFormat<S extends AbstractSequence<C>, C extends
 	 * @param sequence
 	 */
 	private String _write_comment(S sequence) {
-		ArrayList<String> comments = sequence.getNotesList();
+		List<String> comments = sequence.getComments();
 		String output = _write_multi_line("COMMENT", comments.remove(0));
 		for (String comment : comments) {
 			output += _write_multi_line("", comment);
@@ -274,46 +276,44 @@ public class GenericGenbankHeaderFormat<S extends AbstractSequence<C>, C extends
 			header = _write_the_first_line(sequence);
 		}
 		
-		AccessionID accessionIdObj = sequence.getAccession();
-		String accession;
-		String acc_with_version;
-		
-		try {
-			accession = accessionIdObj.getID();
-
-			if (accessionIdObj.getIdentifier() != null) {
-				acc_with_version = sequence.getAccession().getID() + "." + sequence.getAccession().getVersion() + " GI:"
-						+ accessionIdObj.getIdentifier();
-
-			} else {
-				acc_with_version = sequence.getAccession().getID() + "." + sequence.getAccession().getVersion();
-			}
-
-		} catch (Exception e) {
-			acc_with_version = "";
-			accession = "";
-		}
 		String description = sequence.getDescription();
 		if ("<unknown description>".equals(description) || description == null) {
 			description = ".";
 		}
 		header += _write_multi_line("DEFINITION", description);
+		
+		AccessionID accessionIdObj = sequence.getAccession();
+		String accession = ".", version = "", identifier = "";
+		if (accessionIdObj.getID() != null && !accessionIdObj.getID().isEmpty()) {
+			accession = accessionIdObj.getID();
+			if (accessionIdObj.getVersion() != null && accessionIdObj.getVersion() != 0) {
+				version = "." + accessionIdObj.getVersion();
+				if (accessionIdObj.getIdentifier() != null && !accessionIdObj.getIdentifier().isEmpty()) {
+					identifier = " GI:" + accessionIdObj.getIdentifier();
+				}
+			}	
+		}		
 		header += _write_multi_line("ACCESSION", accession);
-		header += _write_multi_line("VERSION", acc_with_version);
+		header += _write_multi_line("VERSION", accession + version + identifier);
 
 		/*
 		 * #The NCBI only expect two types of link so far, #e.g. "Project:28471"
 		 * and "Trace Assembly Archive:123456" #TODO - Filter the dbxrefs list
-		 * to just these? self._write_multi_entries("DBLINK", record.dbxrefs)
-		 *
-		 * try: #List of strings #Keywords should be given separated with semi
-		 * colons, keywords = "; ".join(record.annotations["keywords"]) #with a
-		 * trailing period: if not keywords.endswith(".") : keywords += "."
-		 * except KeyError: #If no keywords, there should be just a period:
-		 * keywords = "."
+		 * to just these? self._write_multi_entries("DBLINK", record.dbxrefs) 
 		 */
 
-		header += _write_multi_line("KEYWORDS", ".");
+		List<String> keywordList = sequence.getKeywords();
+		String keywords;
+		if (keywordList == null) {
+			keywords = ".";
+		} else {
+			keywords = String.join(";", keywordList);
+			if (!keywords.endsWith(".")) {
+				keywords += ".";	
+			}	
+		}
+		
+		header += _write_multi_line("KEYWORDS", keywords);
 
 		/*
 		 * if "segment" in record.annotations: #Deal with SEGMENT line found
@@ -326,7 +326,18 @@ public class GenericGenbankHeaderFormat<S extends AbstractSequence<C>, C extends
 		 * "source"))
 		 */
 
-		header += _write_multi_line("SOURCE", sequence.getSource());
+		if (sequence.getSource() != null) {
+			header += _write_multi_line("SOURCE", sequence.getSource());
+			if (sequence.getOrganism() != null) {
+				header += _write_single_line("  ORGANISM", sequence.getOrganism());	
+			}
+			if (sequence.getLineage() != null) {
+				header += _write_multi_line("", String.join(";", sequence.getLineage()));	
+			}
+		} else {
+			header += _write_multi_line("SOURCE", ".");
+		}
+		
 
 		/*
 		 * #The ORGANISM line MUST be a single line, as any continuation is the
@@ -341,6 +352,51 @@ public class GenericGenbankHeaderFormat<S extends AbstractSequence<C>, C extends
 		 *
 		 * if "references" in record.annotations: self._write_references(record)
 		 */
+		
+		if (sequence.getReferences() != null) {
+			int referenceCounter = 0;
+			for (AbstractReference ref: sequence.getReferences()) {
+				referenceCounter++;
+				GenbankReference genbankRef = (GenbankReference) ref;
+				
+				if (genbankRef.getNumber() != null && genbankRef.getBases() != null) {
+					header += _write_multi_line("REFERENCE", genbankRef.getNumber() + "  " + genbankRef.getBases());	
+				} else {
+					header += _write_multi_line("REFERENCE", referenceCounter + "");
+				}
+								
+				if (genbankRef.getAuthors() != null) {
+					header += _write_multi_line("  AUTHORS",   genbankRef.getAuthors());	
+				}
+				
+				if (genbankRef.getConsortium() != null) {
+					header += _write_multi_line("  CONSRTM",   genbankRef.getConsortium());	
+				}
+				
+				if (genbankRef.getTitle() != null) {
+					header += _write_multi_line("  TITLE",     genbankRef.getTitle());
+				}
+				
+				if (genbankRef.getJournal() != null) {
+					header += _write_multi_line("  JOURNAL",   genbankRef.getJournal());	
+				}
+				
+				if (genbankRef.getPubmedId() != null) {
+					header += _write_multi_line("  PUBMED",    genbankRef.getPubmedId());	
+				}
+				
+				if (genbankRef.getMedlineId() != null) {
+					header += _write_multi_line("  MEDLINE", genbankRef.getMedlineId());	
+				}
+				
+				if (genbankRef.getRemark() != null) {
+					header += _write_multi_line("  REMARK", genbankRef.getRemark());	
+				}
+				
+			}
+		}
+		
+		
 		if (!sequence.getNotesList().isEmpty()) {
 			header += _write_comment(sequence);
 		}
